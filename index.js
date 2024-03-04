@@ -30,6 +30,8 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
           "._cDEzb_p13n-sc-price_3mJ9Z"
         );
         const ratingElement = product.querySelector(".a-icon-star-small span");
+        const linkElement = product.querySelector("a.a-link-normal");
+        console.log(linkElement);
 
         // Check if elements exist before accessing their properties
         const rank = rankElement ? rankElement.innerText : "Rank N/A";
@@ -38,8 +40,11 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
         const rating = ratingElement
           ? ratingElement.innerText.split(" ")[0]
           : "Rating N/A";
+        const link = linkElement
+          ? "https://www.amazon.sa/" + linkElement.getAttribute("href")
+          : "N/A";
 
-        return { rank, title, price, rating }; // Return the data object
+        return { rank, title, price, rating, link }; // Return the data object
       });
       return data;
     });
@@ -68,7 +73,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
 };
 
 const url =
-  "https://www.amazon.sa/-/en/gp/bestsellers/electronics/16966427031/ref=zg_bs_nav_electronics_2_16966388031";
+  "https://www.amazon.sa/-/en/gp/bestsellers/electronics/16966397031/ref=zg_bs_nav_electronics_1";
 
 async function getData() {
   const browser = await puppeteer.launch({ headless: false });
