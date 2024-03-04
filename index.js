@@ -31,11 +31,10 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
         );
         const ratingElement = product.querySelector(".a-icon-star-small span");
         const linkElement = product.querySelector("a.a-link-normal");
-        console.log(linkElement);
-
+        const imageElement = product.querySelector("._cDEzb_noop_3Xbw5 img");
         // Check if elements exist before accessing their properties
         const rank = rankElement ? rankElement.innerText : "Rank N/A";
-        const title = titleElement ? titleElement.innerText : "Title N/A";
+        const title = titleElement ? titleElement.textContent : "Title N/A";
         const price = priceElement ? priceElement.innerText : "Price N/A";
         const rating = ratingElement
           ? ratingElement.innerText.split(" ")[0]
@@ -43,8 +42,11 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
         const link = linkElement
           ? "https://www.amazon.sa/" + linkElement.getAttribute("href")
           : "N/A";
+        const SKU_Index = link.split("/").indexOf("dp") + 1;
+        const SKU = link.split("/")[SKU_Index];
+        const image_link = imageElement.getAttribute("src");
 
-        return { rank, title, price, rating, link }; // Return the data object
+        return { rank, title, price, rating, link, SKU, image_link }; // Return the data object
       });
       return data;
     });
@@ -73,7 +75,7 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
 };
 
 const url =
-  "https://www.amazon.sa/-/en/gp/bestsellers/electronics/16966397031/ref=zg_bs_nav_electronics_1";
+  "https://www.amazon.sa/-/en/gp/bestsellers/office-products/ref=zg_bs_nav_office-products_0";
 
 async function getData() {
   const browser = await puppeteer.launch({ headless: false });
@@ -87,8 +89,12 @@ async function getData() {
   const json2csvParser = new Parser();
   const csv = json2csvParser.parse(items);
 
-  // Write the CSV data to a file
-  fs.writeFileSync("scraped_data.csv", csv, "utf-8");
+  // Write the CSV data to a file with UTF-8 encoding
+  fs.writeFileSync(
+    "office-products_Best_Seller_Amazon.csv",
+    "\ufeff" + csv,
+    "utf-8"
+  );
 
   console.log("Data saved to scraped_data.csv");
 }
