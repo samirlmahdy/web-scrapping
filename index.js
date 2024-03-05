@@ -74,10 +74,8 @@ const scrapeInfiniteScrollItems = async (page, itemTargetCount) => {
   return items.slice(0, itemTargetCount); // Return only the desired number of items
 };
 
-const url =
-  "https://www.amazon.sa/-/en/gp/bestsellers/office-products/ref=zg_bs_nav_office-products_0";
-
-async function getData() {
+async function getData(url, category) {
+  console.log("Scraping data for URL:", url); // Add this line for debugging
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.goto(url);
@@ -91,12 +89,42 @@ async function getData() {
 
   // Write the CSV data to a file with UTF-8 encoding
   fs.writeFileSync(
-    "office-products_Best_Seller_Amazon.csv",
+    `${category}_Best_Seller_Amazon.csv`,
     "\ufeff" + csv,
     "utf-8"
   );
 
-  console.log("Data saved to scraped_data.csv");
+  console.log("Data saved to", `${category}_Best_Seller_Amazon.csv`);
 }
 
-getData();
+// getData();
+async function getAllData() {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  await page.goto("https://www.amazon.sa/-/en/gp/bestsellers/");
+
+  const bestseller = await page.evaluate(() => {
+    const links = Array.from(
+      document.querySelectorAll(
+        "._p13n-zg-nav-tree-all_style_zg-browse-group__88fbz a"
+      )
+    );
+    return links.map((link) => ({
+      bestsellerUrl: "https://www.amazon.sa/" + link.getAttribute("href"),
+      category: link.innerText,
+    }));
+  });
+
+  // Loop over each link and scrape data
+  for (let i = 0; i < bestseller.length; i++) {
+    const { bestsellerUrl, category } = bestseller[i];
+    await getData(bestsellerUrl, category); // Pass category name as "Category1", "Category2", ...
+  }
+
+  console.log("Finished Scrapping data");
+
+  await browser.close();
+}
+
+// Call getAllData() to start scraping data from all links
+getAllData();
