@@ -89,7 +89,7 @@ async function getData(url, category) {
 
   // Write the CSV data to a file with UTF-8 encoding
   fs.writeFileSync(
-    `${category}_Best_Seller_Amazon.csv`,
+    `./scrapped_data/${category}_Best_Seller_Amazon.csv`,
     "\ufeff" + csv,
     "utf-8"
   );
